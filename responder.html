@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Responder - CCHIA 2026-2028</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        header {
+            background-color: #1a2e4a;
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+
+        /* Formulario de acceso */
+        .acceso-section {
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin: 40px auto;
+            text-align: center;
+        }
+
+        .acceso-section h2 {
+            color: #1a2e4a;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+        }
+
+        .acceso-section p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .acceso-form {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .acceso-form input {
+            padding: 12px 16px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            width: 200px;
+        }
+
+        .acceso-form input:focus {
+            outline: none;
+            border-color: #1a2e4a;
+        }
+
+        .btn {
+            background-color: #1a2e4a;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn:hover {
+            background-color: #2a4a6a;
+        }
+
+        .btn:disabled {
+            background-color: #999;
+            cursor: not-allowed;
+        }
+
+        .error-mensaje {
+            color: #e74c3c;
+            margin-top: 15px;
+            font-size: 0.95rem;
+        }
+
+        /* Formulario de respuesta */
+        .respuesta-section {
+            display: none;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin: 40px auto;
+        }
+
+        .respuesta-section.activo {
+            display: block;
+        }
+
+        .respuesta-section h2 {
+            color: #1a2e4a;
+            font-size: 1.3rem;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #1a2e4a;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #1a2e4a;
+        }
+
+        .form-group textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .form-group .char-counter {
+            text-align: right;
+            font-size: 0.8rem;
+            color: #888;
+            margin-top: 4px;
+        }
+
+        .form-group .char-counter.warning {
+            color: #e67e22;
+        }
+
+        .form-group .char-counter.error {
+            color: #e74c3c;
+        }
+
+        .form-group .helper-text {
+            font-size: 0.85rem;
+            color: #888;
+            margin-top: 6px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 600px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Pregunta seleccionada */
+        .pregunta-preview {
+            display: none;
+            background-color: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+
+        .pregunta-preview.activo {
+            display: block;
+        }
+
+        .pregunta-preview-header {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .pregunta-preview-contenido {
+            color: #333;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        /* Mensajes */
+        .mensaje {
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 20px;
+        }
+
+        .mensaje.exito {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .mensaje.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .loading-spinner {
+            width: 30px;
+            height: 30px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #1a2e4a;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 30px 20px;
+            color: #888;
+            font-size: 0.85rem;
+        }
+
+        footer a {
+            color: #1a2e4a;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            header h1 {
+                font-size: 1.4rem;
+            }
+
+            .acceso-section,
+            .respuesta-section {
+                padding: 20px;
+                margin: 20px 10px;
+            }
+
+            .acceso-form {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .acceso-form input {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Portal de respuestas - Lista CCHIA 2026-2028</h1>
+            <p>Responde las preguntas y propuestas de los socios</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Formulario de acceso -->
+        <section class="acceso-section" id="seccionAcceso">
+            <h2>Ingresa el código de acceso</h2>
+            <p>Este portal es exclusivo para candidatos de la lista.</p>
+            <div class="acceso-form">
+                <input type="password" id="codigoAcceso" placeholder="Código de acceso">
+                <button class="btn" onclick="verificarCodigo()">Acceder</button>
+            </div>
+            <p class="error-mensaje" id="errorAcceso" style="display: none;"></p>
+        </section>
+
+        <!-- Formulario de respuesta -->
+        <section class="respuesta-section" id="seccionRespuesta">
+            <h2>Publicar respuesta</h2>
+
+            <div id="loadingPreguntas" class="loading">
+                <div class="loading-spinner"></div>
+                <p>Cargando preguntas sin respuesta...</p>
+            </div>
+
+            <form id="formRespuesta" style="display: none;">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="candidatoNombre">Tu nombre *</label>
+                        <input type="text" id="candidatoNombre" placeholder="Nombre completo" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="candidatoEmail">Tu email *</label>
+                        <input type="email" id="candidatoEmail" placeholder="Email de contacto" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="preguntaSelect">Pregunta a responder *</label>
+                    <select id="preguntaSelect" required>
+                        <option value="">Selecciona una pregunta...</option>
+                    </select>
+                    <div class="pregunta-preview" id="preguntaPreview">
+                        <div class="pregunta-preview-header">
+                            <strong id="previewAutor"></strong> · <span id="previewTipo"></span> · <span id="previewFecha"></span>
+                        </div>
+                        <div class="pregunta-preview-contenido" id="previewContenido"></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="contenidoRespuesta">Tu respuesta *</label>
+                    <textarea id="contenidoRespuesta" placeholder="Escribe tu respuesta..." maxlength="2500" required></textarea>
+                    <div class="char-counter"><span id="charCount">0</span> / 2500 caracteres</div>
+                    <p class="helper-text">Tu nombre aparecerá públicamente junto a esta respuesta.</p>
+                </div>
+
+                <button type="submit" class="btn" id="btnEnviar">Publicar respuesta</button>
+
+                <div id="mensajeForm" class="mensaje" style="display: none;"></div>
+            </form>
+
+            <div id="sinPreguntas" class="loading" style="display: none;">
+                <p>No hay preguntas sin respuesta en este momento.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>Portal de respuestas para la lista CCHIA 2026-2028</p>
+        <p><a href="index.html">Volver a la página principal</a></p>
+    </footer>
+
+    <script>
+        // ============================================
+        // CONFIGURACIÓN
+        // ============================================
+        // URL de tu Cloudflare Worker (reemplazar después de desplegarlo)
+        const WORKER_URL = 'https://cchia-api.TU_SUBDOMINIO.workers.dev';
+
+        // Código de acceso (se valida en el Worker, esto es solo para la UI)
+        const CODIGO_ACCESO_LISTA = 'CCHIA2026';
+
+        // ============================================
+        // VARIABLES GLOBALES
+        // ============================================
+        let preguntasSinResponder = [];
+        let codigoIngresado = '';
+
+        // ============================================
+        // FUNCIONES DE UTILIDAD
+        // ============================================
+
+        function formatearFecha(fecha) {
+            const opciones = { day: 'numeric', month: 'short', year: 'numeric' };
+            return new Date(fecha).toLocaleDateString('es-CL', opciones);
+        }
+
+        function truncarTexto(texto, maxLength) {
+            if (!texto) return '';
+            if (texto.length <= maxLength) return texto;
+            return texto.substring(0, maxLength) + '...';
+        }
+
+        // ============================================
+        // FUNCIONES DE API (via Cloudflare Worker)
+        // ============================================
+
+        async function cargarPreguntasSinResponder() {
+            const formula = `{estado}='Sin respuesta'`;
+
+            try {
+                const response = await fetch(`${WORKER_URL}/api/preguntas?filterByFormula=${encodeURIComponent(formula)}`);
+
+                if (!response.ok) {
+                    throw new Error('Error al cargar las preguntas');
+                }
+
+                const data = await response.json();
+                preguntasSinResponder = data.records || [];
+                mostrarOpcionesPreguntas();
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('loadingPreguntas').innerHTML = `
+                    <p style="color: #e74c3c;">Error al cargar las preguntas. Por favor recarga la página.</p>
+                `;
+            }
+        }
+
+        async function enviarRespuesta(datos) {
+            const response = await fetch(`${WORKER_URL}/api/respuestas`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    codigo_acceso: codigoIngresado,
+                    fields: {
+                        pregunta_id: datos.preguntaId,
+                        record_id: datos.recordId,
+                        candidato_nombre: datos.candidatoNombre,
+                        candidato_email: datos.candidatoEmail,
+                        contenido: datos.contenido
+                    }
+                })
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || 'Error al enviar la respuesta');
+            }
+
+            return await response.json();
+        }
+
+        // ============================================
+        // FUNCIONES DE RENDERIZADO
+        // ============================================
+
+        function mostrarOpcionesPreguntas() {
+            const loading = document.getElementById('loadingPreguntas');
+            const form = document.getElementById('formRespuesta');
+            const sinPreguntas = document.getElementById('sinPreguntas');
+            const select = document.getElementById('preguntaSelect');
+
+            loading.style.display = 'none';
+
+            if (!preguntasSinResponder || preguntasSinResponder.length === 0) {
+                sinPreguntas.style.display = 'block';
+                return;
+            }
+
+            form.style.display = 'block';
+
+            select.innerHTML = '<option value="">Selecciona una pregunta...</option>';
+
+            preguntasSinResponder.forEach(record => {
+                const p = record.fields;
+                const option = document.createElement('option');
+                option.value = record.id;
+                option.textContent = `[${p.tipo}] ${truncarTexto(p.contenido, 100)}`;
+                option.dataset.autor = p.nombre || 'Socio anónimo';
+                option.dataset.tipo = p.tipo;
+                option.dataset.fecha = p.fecha_envio;
+                option.dataset.contenido = p.contenido;
+                select.appendChild(option);
+            });
+        }
+
+        function mostrarPreviewPregunta(recordId) {
+            const preview = document.getElementById('preguntaPreview');
+            const select = document.getElementById('preguntaSelect');
+            const selectedOption = select.options[select.selectedIndex];
+
+            if (!recordId) {
+                preview.classList.remove('activo');
+                return;
+            }
+
+            document.getElementById('previewAutor').textContent = selectedOption.dataset.autor;
+            document.getElementById('previewTipo').textContent = selectedOption.dataset.tipo;
+            document.getElementById('previewFecha').textContent = formatearFecha(selectedOption.dataset.fecha);
+            document.getElementById('previewContenido').textContent = selectedOption.dataset.contenido;
+
+            preview.classList.add('activo');
+        }
+
+        // ============================================
+        // FUNCIONES DE INTERACCIÓN
+        // ============================================
+
+        function verificarCodigo() {
+            const codigo = document.getElementById('codigoAcceso').value;
+            const errorDiv = document.getElementById('errorAcceso');
+
+            if (codigo === CODIGO_ACCESO_LISTA) {
+                codigoIngresado = codigo;
+                document.getElementById('seccionAcceso').style.display = 'none';
+                document.getElementById('seccionRespuesta').classList.add('activo');
+                cargarPreguntasSinResponder();
+            } else {
+                errorDiv.textContent = 'Código incorrecto. Contacta a quien administra la lista para obtener el código.';
+                errorDiv.style.display = 'block';
+            }
+        }
+
+        // ============================================
+        // EVENT LISTENERS
+        // ============================================
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('codigoAcceso').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    verificarCodigo();
+                }
+            });
+
+            document.getElementById('preguntaSelect').addEventListener('change', function() {
+                mostrarPreviewPregunta(this.value);
+            });
+
+            const contenido = document.getElementById('contenidoRespuesta');
+            const charCount = document.getElementById('charCount');
+            const charCounter = contenido.parentElement.querySelector('.char-counter');
+
+            contenido.addEventListener('input', function() {
+                const count = this.value.length;
+                charCount.textContent = count;
+
+                charCounter.classList.remove('warning', 'error');
+                if (count > 2400) {
+                    charCounter.classList.add('error');
+                } else if (count > 2000) {
+                    charCounter.classList.add('warning');
+                }
+            });
+
+            document.getElementById('formRespuesta').addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                const btnEnviar = document.getElementById('btnEnviar');
+                const mensajeDiv = document.getElementById('mensajeForm');
+                const select = document.getElementById('preguntaSelect');
+
+                const datos = {
+                    recordId: select.value,
+                    preguntaId: select.value,
+                    candidatoNombre: document.getElementById('candidatoNombre').value,
+                    candidatoEmail: document.getElementById('candidatoEmail').value,
+                    contenido: document.getElementById('contenidoRespuesta').value
+                };
+
+                if (!datos.recordId) {
+                    mensajeDiv.textContent = 'Por favor selecciona una pregunta para responder.';
+                    mensajeDiv.className = 'mensaje error';
+                    mensajeDiv.style.display = 'block';
+                    return;
+                }
+
+                btnEnviar.disabled = true;
+                btnEnviar.textContent = 'Publicando...';
+                mensajeDiv.style.display = 'none';
+
+                try {
+                    await enviarRespuesta(datos);
+
+                    mensajeDiv.textContent = 'Tu respuesta ha sido publicada y ya es visible en la página principal.';
+                    mensajeDiv.className = 'mensaje exito';
+                    mensajeDiv.style.display = 'block';
+
+                    document.getElementById('contenidoRespuesta').value = '';
+                    charCount.textContent = '0';
+                    document.getElementById('preguntaPreview').classList.remove('activo');
+
+                    await cargarPreguntasSinResponder();
+
+                } catch (error) {
+                    console.error('Error:', error);
+                    mensajeDiv.textContent = error.message || 'Error al publicar la respuesta. Por favor intenta de nuevo.';
+                    mensajeDiv.className = 'mensaje error';
+                    mensajeDiv.style.display = 'block';
+                } finally {
+                    btnEnviar.disabled = false;
+                    btnEnviar.textContent = 'Publicar respuesta';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
